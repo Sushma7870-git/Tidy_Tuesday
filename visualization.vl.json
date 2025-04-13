@@ -1,0 +1,93 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "params": [
+    {
+      "name": "region_filter",
+      "bind": {
+        "input": "select",
+        "options": [null, "South", "Northeast", "Midwest", "West"],
+        "labels": ["All Regions", "South", "Northeast", "Midwest", "West"],
+        "name": "Filter by Region: "
+      }
+    }
+  ],
+  "vconcat": [
+    {
+      "width": 500,
+      "height": 300,
+      "data": {
+        "url": "data/us-10m.json",
+        "format": {"type": "topojson", "feature": "states"}
+      },
+      "transform": [
+        {
+          "lookup": "id",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/Sushma7870-git/Tidy_Tuesday/refs/heads/main/updated_black_population_with_density.csv"
+            },
+            "key": "id",
+            "fields": ["black_population_density", "state", "region"]
+          }
+        },
+        {"filter": "region_filter == null || datum.region == region_filter"}
+      ],
+      "projection": {"type": "albersUsa"},
+      "mark": "geoshape",
+      "encoding": {
+        "color": {
+          "field": "black_population_density",
+          "type": "quantitative",
+          "title": "Black Pop. Density"
+        },
+        "tooltip": [
+          {"field": "state", "title": "State"},
+          {
+            "field": "black_population_density",
+            "title": "Black Pop. Density",
+            "format": ".2f"
+          },
+          {"field": "region", "title": "Region"}
+        ]
+      }
+    },
+    {
+      "width": 500,
+      "height": 300,
+      "data": {
+        "url": "https://raw.githubusercontent.com/Sushma7870-git/Tidy_Tuesday/refs/heads/main/updated_black_population_with_density.csv"
+      },
+      "transform": [
+        {"filter": "region_filter == null || datum.region == region_filter"}
+      ],
+      "mark": {"type": "circle", "tooltip": true},
+      "encoding": {
+        "x": {
+          "field": "state",
+          "type": "nominal",
+          "sort": "-y",
+          "title": "State"
+        },
+        "y": {
+          "field": "black_population_density",
+          "type": "quantitative",
+          "title": "Black Pop. Density"
+        },
+        "size": {
+          "field": "state population",
+          "type": "quantitative",
+          "title": "Total Population"
+        },
+        "color": {"field": "region", "type": "nominal", "title": "Region"},
+        "tooltip": [
+          {"field": "state", "type": "nominal"},
+          {"field": "state population", "type": "quantitative"},
+          {"field": "black population", "type": "quantitative"},
+          {"field": "black_population_density", "type": "quantitative"},
+          {"field": "region", "type": "nominal"}
+        ]
+      }
+    }
+  ],
+  "config": {}
+}
